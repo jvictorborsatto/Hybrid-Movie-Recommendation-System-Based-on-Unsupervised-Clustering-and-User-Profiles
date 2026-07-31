@@ -299,11 +299,6 @@
 
   <p>Validation movies (post-2015) were assigned to the already-trained clusters via <code>transform</code>/<code>predict</code> — no retraining, exactly as it would work in production.</p>
 
-  <div class="img-slot">
-    2D PCA projection of the 30 movie clusters grouped by genre similarity
-    <span class="cap">— add chart image here —</span>
-  </div>
-
   <h2>2. Building each user's profile</h2>
   <p>Once every movie belonged to a cluster, the next step was to turn each user's rating history into a behavior profile, computed across 3 axes:</p>
   <ul>
@@ -312,11 +307,6 @@
     <li><strong>Frequency</strong> — total number of movies rated, normalized</li>
   </ul>
   <p>Based on the median of each axis, every user was classified into an octant: <code>{Eclectic|Focused} × {Generous|Critical} × {Frequent|Casual}</code></p>
-
-  <div class="img-slot">
-    3D distribution of users across the 3 behavioral axes
-    <span class="cap">— add chart image here —</span>
-  </div>
 
   <h3>Distribution of the profiles found</h3>
   <table>
@@ -333,12 +323,8 @@
   </table>
 
   <h3>Exploring the axes pairwise</h3>
-  <div class="img-slot">
-    Frequency vs. Generosity · Diversity vs. Generosity · Diversity vs. Frequency · Generosity by cluster count (boxplot)
-    <span class="cap">— add 4 chart images here —</span>
-  </div>
 
-  <h2>3. Movie ranking & rule-based recommendation</h2>
+ <h2>3. Movie ranking & rule-based recommendation</h2>
   <p>With clusters and profiles in place, the final step was building a per-cluster popularity ranking (average rating, filtered to movies with 100+ ratings) and using each user's octant to decide the recommendation strategy:</p>
   <ul>
     <li><strong>Focused</strong> → recommend only within the user's preferred clusters</li>
