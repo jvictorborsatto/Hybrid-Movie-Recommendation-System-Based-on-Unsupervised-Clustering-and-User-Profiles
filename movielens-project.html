@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hybrid Movie Recommendation System — João Victor Borsatto</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=IBM+Plex+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2ee;
+    --accent: #00d9a3;
+    --mid-grey: #888;
+  }
+
+  html { scroll-behavior: smooth; font-size: 80%; }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--black);
+    color: #c9d1d9;
+    line-height: 1.7;
+  }
+
+  a { color: var(--accent); }
+
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(10,10,10,0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #1e1e1e;
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .top-bar .brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--white);
+    text-decoration: none;
+  }
+
+  .top-bar .brand span { color: var(--accent); }
+
+  .top-bar a.btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--accent);
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  header.hero {
+    padding: 100px 40px 80px;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  header.hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 100%;
+    background: radial-gradient(ellipse 60% 60% at 50% 0%, rgba(0,217,163,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.1;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+
+  .tagline {
+    font-size: 15px;
+    color: #999;
+    max-width: 640px;
+    margin-bottom: 32px;
+  }
+
+  .badges { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+
+  .badge {
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    padding: 5px 12px;
+    border: 1px solid #2a2a2a;
+    border-radius: 20px;
+    color: #999;
+    background: #111;
+  }
+
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px 120px;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    color: var(--white);
+    margin: 56px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #e6e6e6;
+    margin: 28px 0 12px;
+  }
+
+  p { color: #9aa4ad; margin-bottom: 16px; font-size: 13.5px; }
+  p strong, li strong { color: #d8dce0; }
+  em { color: #b8c0c8; }
+
+  ul, ol { margin: 12px 0 20px 28px; color: #9aa4ad; font-size: 13.5px; }
+  li { margin-bottom: 8px; }
+
+  code {
+    background: #161b22;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #f85149;
+  }
+
+  pre {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    padding: 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 20px 0;
+    font-size: 12px;
+    line-height: 1.8;
+  }
+
+  pre code { background: none; padding: 0; color: #c9d1d9; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 12.5px;
+  }
+  th, td { border: 1px solid #1e1e1e; padding: 10px 14px; text-align: left; }
+  th { background: #111; color: var(--white); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; }
+  td { color: #9aa4ad; }
+  tr:hover td { background: #0e0e0e; }
+
+  .img-slot {
+    background: #0e0e0e;
+    border: 1px dashed #2a2a2a;
+    border-radius: 8px;
+    padding: 48px 24px;
+    text-align: center;
+    color: #555;
+    font-size: 11px;
+    margin: 24px 0;
+  }
+  .img-slot .cap { display: block; margin-top: 6px; font-size: 10px; color: #3a3a3a; }
+
+  .note {
+    font-size: 11.5px;
+    color: #6e7681;
+    border-left: 2px solid var(--accent);
+    padding: 12px 16px;
+    margin: 32px 0;
+    background: #0e0e0e;
+    border-radius: 0 6px 6px 0;
+  }
+
+  .pipeline-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 24px 0;
+    font-size: 12px;
+  }
+  .pipeline-step {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    color: #c9d1d9;
+  }
+  .pipeline-arrow { text-align: center; color: #333; font-size: 14px; }
+
+  footer {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px;
+    border-top: 1px solid #1a1a1a;
+    text-align: center;
+    color: #444;
+    font-size: 11px;
+  }
+  footer a { color: #666; text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .top-bar { padding: 14px 20px; }
+    header.hero { padding: 60px 20px 50px; }
+    main { padding: 0 20px 80px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="https://jvictorborsatto.github.io/" class="brand">JVB<span>.</span> Portfolio</a>
+  <a class="btn" href="https://github.com/jvictorborsatto/Hybrid-Movie-Recommendation-System-Based-on-Unsupervised-Clustering-and-User-Profiles" target="_blank">View on GitHub ↗</a>
+</div>
+
+<header class="hero">
+  <div class="eyebrow">// Data Science Project</div>
+  <h1>Hybrid Movie Recommendation System</h1>
+  <p class="tagline">Unsupervised ML portfolio project on MovieLens 33M: PCA + K-Means clustering of movies by genre, then behavioral user profiling (diversity, generosity, frequency) to power a simple rule-based recommendation strategy.</p>
+  <div class="badges">
+    <span class="badge">Python 3.10+</span>
+    <span class="badge">scikit-learn</span>
+    <span class="badge">pandas</span>
+    <span class="badge">Portfolio Project</span>
+  </div>
+</header>
+
+<main>
+
+  <h2>About the data</h2>
+  <ul>
+    <li><strong>Source:</strong> MovieLens 33M — <em>No Genomics</em> variant</li>
+    <li><strong>Files used:</strong> <code>movies.csv</code> (title, year, genres) and <code>ratings.csv</code></li>
+    <li><strong>Temporal split:</strong> movies released before 2015 go into training, everything from 2015 onward goes into a validation set — simulating the real-world scenario of "new movies arriving after the model was trained"</li>
+  </ul>
+
+  <h2>Project pipeline</h2>
+  <div class="pipeline-flow">
+    <div class="pipeline-step">movies.csv + ratings.csv</div>
+    <div class="pipeline-arrow">↓</div>
+    <div class="pipeline-step">1. Genre parsing (MultiLabelBinarizer) + year extraction</div>
+    <div class="pipeline-arrow">↓</div>
+    <div class="pipeline-step">2. PCA (10 components) on the binary genre matrix</div>
+    <div class="pipeline-arrow">↓</div>
+    <div class="pipeline-step">3. K-Means (30 clusters) → each movie gets a "latent genre"</div>
+    <div class="pipeline-arrow">↓</div>
+    <div class="pipeline-step">4. User behavior profile (diversity, generosity, frequency)</div>
+    <div class="pipeline-arrow">↓</div>
+    <div class="pipeline-step">5. Segmentation into 8 user-profile octants</div>
+    <div class="pipeline-arrow">↓</div>
+    <div class="pipeline-step">6. Per-cluster movie ranking + rule-based recommendation</div>
+  </div>
+
+  <h2>1. Movie clustering (unsupervised)</h2>
+  <p>Each movie has a list of genres (<code>Action|Comedy|Drama...</code>). This was one-hot encoded with <code>MultiLabelBinarizer</code>, reduced with PCA (10 components, retaining 83.6% of the variance), and grouped with K-Means.</p>
+
+  <table>
+    <tr><th>Metric</th><th>Value</th></tr>
+    <tr><td>Number of clusters</td><td>30</td></tr>
+    <tr><td>Inertia (WCSS)</td><td>10,869.83</td></tr>
+    <tr><td>Silhouette Score</td><td>0.6505</td></tr>
+    <tr><td>Davies-Bouldin Index</td><td>0.9460</td></tr>
+    <tr><td>Calinski-Harabasz Score</td><td>11,161.46</td></tr>
+  </table>
+
+  <p>Validation movies (post-2015) were assigned to the already-trained clusters via <code>transform</code>/<code>predict</code> — no retraining, exactly as it would work in production.</p>
+
+  <div class="img-slot">
+    2D PCA projection of the 30 movie clusters grouped by genre similarity
+    <span class="cap">— add chart image here —</span>
+  </div>
+
+  <h2>2. Building each user's profile</h2>
+  <p>Once every movie belonged to a cluster, the next step was to turn each user's rating history into a behavior profile, computed across 3 axes:</p>
+  <ul>
+    <li><strong>Diversity</strong> — how many different clusters a user tends to explore (normalized by the 30 clusters)</li>
+    <li><strong>Generosity</strong> — average rating given (z-score normalized per user, to remove the bias of "users who rate everything highly")</li>
+    <li><strong>Frequency</strong> — total number of movies rated, normalized</li>
+  </ul>
+  <p>Based on the median of each axis, every user was classified into an octant: <code>{Eclectic|Focused} × {Generous|Critical} × {Frequent|Casual}</code></p>
+
+  <div class="img-slot">
+    3D distribution of users across the 3 behavioral axes
+    <span class="cap">— add chart image here —</span>
+  </div>
+
+  <h3>Distribution of the profiles found</h3>
+  <table>
+    <tr><th>Profile</th><th>Users</th></tr>
+    <tr><td>Eclectic_Critical_Frequent</td><td>32,937</td></tr>
+    <tr><td>Eclectic_Generous_Casual</td><td>31,519</td></tr>
+    <tr><td>Eclectic_Critical_Casual</td><td>28,166</td></tr>
+    <tr><td>Eclectic_Generous_Frequent</td><td>26,581</td></tr>
+    <tr><td>Focused_Generous_Casual</td><td>23,375</td></tr>
+    <tr><td>Focused_Critical_Frequent</td><td>22,846</td></tr>
+    <tr><td>Focused_Generous_Frequent</td><td>19,080</td></tr>
+    <tr><td>Focused_Critical_Casual</td><td>16,443</td></tr>
+    <tr><td><strong>Total</strong></td><td><strong>~200,947</strong></td></tr>
+  </table>
+
+  <h3>Exploring the axes pairwise</h3>
+  <div class="img-slot">
+    Frequency vs. Generosity · Diversity vs. Generosity · Diversity vs. Frequency · Generosity by cluster count (boxplot)
+    <span class="cap">— add 4 chart images here —</span>
+  </div>
+
+  <h2>3. Movie ranking & rule-based recommendation</h2>
+  <p>With clusters and profiles in place, the final step was building a per-cluster popularity ranking (average rating, filtered to movies with 100+ ratings) and using each user's octant to decide the recommendation strategy:</p>
+  <ul>
+    <li><strong>Focused</strong> → recommend only within the user's preferred clusters</li>
+    <li><strong>Eclectic</strong> → mix preferred clusters with movies from outside them (exploration)</li>
+    <li><strong>Frequent</strong> → gets a larger list (20 movies)</li>
+    <li><strong>Casual</strong> → gets a shorter list (10 movies)</li>
+  </ul>
+  <p>This is a simple approach based on business rules over the behavioral segmentation — not a trained supervised model — but it already shows how unsupervised segmentation can feed directly into personalization.</p>
+
+  <h2>Tech stack</h2>
+  <ul>
+    <li><strong>Python</strong> (pandas, numpy)</li>
+    <li><strong>scikit-learn</strong> — MultiLabelBinarizer, PCA, KMeans, StandardScaler, MinMaxScaler, clustering metrics</li>
+    <li><strong>Matplotlib / Plotly</strong> — visualization</li>
+    <li><strong>Joblib</strong> — K-Means model persistence</li>
+  </ul>
+
+  <h2>Structure</h2>
+  <pre><code>.
+├── Notebook_ML_No_Genomics_MovieLens.ipynb   # full project notebook
+├── kmeans_movies.pkl                          # saved K-Means model
+└── images/                                    # charts generated during analysis</code></pre>
+
+  <h2>How to run</h2>
+  <pre><code>pip install pandas numpy scikit-learn matplotlib plotly joblib</code></pre>
+  <p>Download the MovieLens 33M (No Genomics) dataset and point <code>DATA_PATH</code> in the notebook to the folder containing <code>movies.csv</code> and <code>ratings.csv</code>.</p>
+
+  <h2>Next steps</h2>
+  <ul>
+    <li>Test different values of <code>k</code> and compare clustering metrics</li>
+    <li>Explore clustering directly on user profiles too, not just on movies</li>
+    <li>Replace the rule-based recommendation logic with an actual supervised model</li>
+  </ul>
+
+  <div class="note">
+    Note on numbers: every metric and count on this page was pulled directly from the notebook's executed cell outputs (PCA variance, silhouette/Davies-Bouldin/Calinski-Harabasz scores, per-cluster movie counts, per-profile user counts). The only derived figure is the "~200,947" total, which is the sum of the 8 profile counts above.
+  </div>
+
+</main>
+
+<footer>
+  <a href="https://github.com/jvictorborsatto" target="_blank">GitHub</a> ·
+  <a href="https://jvictorborsatto.github.io/" target="_blank">Portfolio</a>
+</footer>
+
+</body>
+</html>
