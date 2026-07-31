@@ -1,4 +1,4 @@
-# Unsupervisinated_ML_Project_Movies_Catalogue
+# Hybrid Movie Recommendation System Based on Unsupervised Clustering and User Profiles
 Unsupervised ML portfolio project on MovieLens 33M: PCA + K-Means clustering of movies by genre, then behavioral user profiling (diversity, generosit# 🎬 MovieLens Clustering — Movie Segmentation & User Behavior Profiles
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
